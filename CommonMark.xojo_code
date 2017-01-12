@@ -1,6 +1,45 @@
 #tag Module
 Protected Module CommonMark
 	#tag Method, Flags = &h21
+		Private Function GetBinaryPath() As String
+		  /// ------------------------------------------------------------------------------------------------
+		  ' Returns the path of the cmark binary. Cached by the Initialise() method to save speed later.
+		  
+		  ' Returns: String
+		  /// ------------------------------------------------------------------------------------------------
+		  
+		  #if TargetMacOS or TargetLinux
+		    return ResourcesFolder.Child("cmark").ShellPath
+		  #else
+		    return ResourcesFolder.Child("cmark.exe").ShellPath
+		  #endif
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
+		Protected Sub Initialise()
+		  /// ------------------------------------------------------------------------------------------------
+		  ' Initialises required properties. Only needs to be called once per project
+		  /// ------------------------------------------------------------------------------------------------
+		  
+		  ' Do we need to initialise?
+		  if mInitialised then return
+		  
+		  myShell = new Shell
+		  
+		  ' Cache the path to the cmark binary
+		  cmarkBinaryPath = GetBinaryPath()
+		  
+		  ' Flag that we've done the initialisation
+		  mInitialised = True
+		  
+		  ' Do a quick Markdown parse to reduce the subsequent parse times
+		  dim md as Text = "Hello"
+		  dim html as Text = CommonMark.ToHTML(md)
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
 		Private Function ResourcesFolder() As FolderItem
 		  /// ------------------------------------------------------------------------------------------------
 		  ' Returns the resources folder within the app bundle
@@ -45,7 +84,8 @@ Protected Module CommonMark
 		  dim name as String
 		  dim f as FolderItem
 		  
-		  if myShell = Nil then myShell = new Shell
+		  ' Check the module has been initialised
+		  if not mInitialised then Initialise()
 		  
 		  'Write the markdown to a temporary file
 		  name = "cmark" + Str(Microseconds) + ".md"
@@ -95,23 +135,16 @@ Protected Module CommonMark
 	#tag EndNote
 
 
-	#tag ComputedProperty, Flags = &h21
-		#tag Getter
-			Get
-			  #if TargetMacOS or TargetLinux
-			    return ResourcesFolder.Child("cmark").ShellPath
-			  #else
-			    return ResourcesFolder.Child("cmark.exe").ShellPath
-			  #endif
-			End Get
-		#tag EndGetter
-		#tag Setter
-			Set
-			  ' Read only.
-			End Set
-		#tag EndSetter
+	#tag Property, Flags = &h21
+		#tag Note
+			Read only by end-user.
+		#tag EndNote
 		Private cmarkBinaryPath As String
-	#tag EndComputedProperty
+	#tag EndProperty
+
+	#tag Property, Flags = &h21
+		Private mInitialised As Boolean = False
+	#tag EndProperty
 
 	#tag Property, Flags = &h21
 		Private myShell As Shell
