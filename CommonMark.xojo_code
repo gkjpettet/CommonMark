@@ -98,12 +98,11 @@ Protected Module CommonMark
 	#tag ComputedProperty, Flags = &h21
 		#tag Getter
 			Get
-			  try
+			  #if TargetMacOS or TargetLinux
 			    return ResourcesFolder.Child("cmark").ShellPath
-			  catch err as NilObjectException
-			    MsgBox("Could not locate the cmark binary")
-			    Quit()
-			  end try
+			  #else
+			    return ResourcesFolder.Child("cmark.exe").ShellPath
+			  #endif
 			End Get
 		#tag EndGetter
 		#tag Setter

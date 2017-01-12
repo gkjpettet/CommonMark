@@ -16,5 +16,11 @@
 			Begin BuildStepList Windows
 				Begin BuildProjectStep Build
 				End
+				Begin CopyFilesBuildStep CopyBinariesWin
+					AppliesTo = 0
+					Destination = 1
+					Subdirectory = 
+					FolderItem = Li4vcmVzb3VyY2VzL3dpbi9jbWFyay5leGU=
+				End
 			End
 #tag EndBuildAutomation
